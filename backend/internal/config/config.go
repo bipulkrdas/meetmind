@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
@@ -30,14 +31,26 @@ type Config struct {
 }
 
 func Load() *Config {
-	err := godotenv.Load("/Users/bipuldas/livekit/consulting/backend/.env")
-	if err != nil {
-		log.Println("No .env file found")
+	// Get environment, default to development
+	appEnv := os.Getenv("ENV")
+	if appEnv == "" {
+		appEnv = "development"
 	}
+
+	// If in development, load the .env file from the current working directory.
+	if appEnv == "development" {
+		err := godotenv.Load("/Users/bipuldas/livekit/consulting/backend/.env")
+		if err != nil {
+			log.Println("Warning: could not find .env file for development.")
+		}
+	}
+
+	// In production, the environment variables are expected to be set directly
+	// (e.g., by Cloud Run's secret management via the Docker CMD).
 
 	cfg := &Config{}
 	if err := env.Parse(cfg); err != nil {
-		log.Fatalf("Failed to parse config: %+v", err)
+		log.Fatalf("Failed to parse config from environment variables: %+v", err)
 	}
 
 	return cfg
