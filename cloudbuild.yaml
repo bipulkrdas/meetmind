@@ -52,7 +52,6 @@ steps:
       - 'us-central1'
       - '--platform'
       - 'managed'
-      - '--allow-unauthenticated'
       - '--port'
       - '8080'
       - '--service-account=dial2ai-webapp-cloudrun@dial2ai.iam.gserviceaccount.com'
@@ -73,11 +72,9 @@ steps:
       - 'us-central1'
       - '--platform'
       - 'managed'
-      - '--allow-unauthenticated'
       - '--port'
       - '3000'
       - '--service-account=dial2ai-webapp-cloudrun@dial2ai.iam.gserviceaccount.com'
-      - '--set-secrets=/secrets/.env=meetmind_frontend_secret:latest'
     wait_for: ['Push Frontend']
 
 images:
