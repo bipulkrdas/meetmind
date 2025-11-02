@@ -1,11 +1,14 @@
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
+import { Suspense } from 'react';
 
 export default function ResetPasswordPage() {
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center">Reset Password</h1>
-        <ResetPasswordForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
     </div>
   );
