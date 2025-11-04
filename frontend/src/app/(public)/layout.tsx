@@ -14,7 +14,7 @@ const Header = () => {
                 <div className="bg-blue-600 p-2 rounded-lg">
                   <Video className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900 dark:text-white"> <Link href="/">MeetWith.AI</Link></span>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-900"> <Link href="/">Meetspace</Link></span>
               </div>
 
         </div>

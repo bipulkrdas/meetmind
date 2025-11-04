@@ -8,7 +8,7 @@ export default function SignInPage() {
         <h1 className="text-2xl font-bold text-center">Sign In</h1>
         <SignInForm />
         <div className="text-center">
-          <Link href="/auth/reset-password">
+          <Link href="/reset-password">
             <span className="text-sm text-blue-600 hover:underline">Forgot Password?</span>
           </Link>
         </div>

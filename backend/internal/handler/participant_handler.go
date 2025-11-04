@@ -142,3 +142,49 @@ func (h *ParticipantHandler) JoinRoomInternal(w http.ResponseWriter, r *http.Req
 
     respondWithJSON(w, http.StatusOK, map[string]string{"livekit_token": livekitToken})
 }
+
+func (h *ParticipantHandler) InviteParticipantsToJoinMeeting(w http.ResponseWriter, r *http.Request) {
+	inviterID, err := getUserIDFromContext(r)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	vars := mux.Vars(r)
+	roomID, err := uuid.Parse(vars["roomId"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid room ID")
+		return
+	}
+
+	err = h.participantService.InviteParticipantsToJoinMeeting(r.Context(), roomID, inviterID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Invitations sent successfully"})
+}
+
+func (h *ParticipantHandler) GenerateMeetingUrl(w http.ResponseWriter, r *http.Request) {
+	userID, err := getUserIDFromContext(r)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	vars := mux.Vars(r)
+	roomID, err := uuid.Parse(vars["roomId"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid room ID")
+		return
+	}
+
+	meetingURL, err := h.participantService.GenerateMeetingUrl(r.Context(), roomID, userID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"meeting_url": meetingURL})
+}

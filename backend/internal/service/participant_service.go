@@ -92,6 +92,65 @@ func (s *ParticipantService) AddParticipant(
 	}, nil
 }
 
+func (s *ParticipantService) InviteParticipantsToJoinMeeting(ctx context.Context, roomID uuid.UUID, inviterID uuid.UUID) error {
+	room, err := s.roomRepo.GetByID(ctx, roomID)
+	if err != nil {
+		return err
+	}
+
+	participants, err := s.participantRepo.GetByRoomID(ctx, roomID)
+	if err != nil {
+		return err
+	}
+
+	for _, participant := range participants {
+		// Don't send invite to the inviter
+		if participant.UserID != nil && *participant.UserID == inviterID {
+			continue
+		}
+
+		inviteToken := uuid.New().String()
+		expiresAt := time.Now().Add(7 * 24 * time.Hour) // 7 days
+
+		err = s.inviteRepo.Create(ctx, roomID, inviterID, participant.Email, participant.Name, inviteToken, expiresAt)
+		if err != nil {
+			// Log error but don't fail the whole process
+			// log.Printf("failed to create invite for participant %s: %v", participant.Email, err)
+			continue
+		}
+
+		inviteURL := s.frontendURL + "/join/" + roomID.String() + "/prep?token=" + inviteToken
+		err = s.emailService.SendRoomInviteEmail(ctx, participant.Email, room.RoomName, inviteURL)
+		if err != nil {
+			// Log error but don't fail
+			// log.Printf("failed to send invite email to %s: %v", participant.Email, err)
+		}
+	}
+
+	return nil
+}
+
+func (s *ParticipantService) GenerateMeetingUrl(ctx context.Context, roomID uuid.UUID, userID uuid.UUID) (string, error) {
+	participant, err := s.participantRepo.GetByRoomAndUserID(ctx, roomID, userID)
+	if err != nil {
+		return "", err
+	}
+	if participant == nil {
+		return "", errors.New("user is not a participant of this room")
+	}
+
+	inviteToken := uuid.New().String()
+	expiresAt := time.Now().Add(7 * 24 * time.Hour) // 7 days
+
+	err = s.inviteRepo.Create(ctx, roomID, userID, participant.Email, participant.Name, inviteToken, expiresAt)
+	if err != nil {
+		return "", err
+	}
+
+	inviteURL := s.frontendURL + "/join/" + roomID.String() + "/prep?token=" + inviteToken
+	return inviteURL, nil
+}
+
 func (s *ParticipantService) GetRoomParticipants(ctx context.Context, roomID uuid.UUID) ([]*model.RoomParticipant, error) {
 	return s.participantRepo.GetByRoomID(ctx, roomID)
 }

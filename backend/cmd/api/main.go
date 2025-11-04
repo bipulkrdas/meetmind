@@ -120,6 +120,9 @@ func main() {
 	// authAPI.HandleFunc("/rooms/{roomId}/join_external", participantHandler.JoinRoom).Methods("POST")
 	authAPI.HandleFunc("/rooms/{roomId}/join_internal", participantHandler.JoinRoomInternal).Methods("POST")
 
+	authAPI.HandleFunc("/rooms/{roomId}/invite_participants_to_join_meeting", participantHandler.InviteParticipantsToJoinMeeting).Methods("POST")
+	authAPI.HandleFunc("/rooms/{roomId}/generate_meeting_url", participantHandler.GenerateMeetingUrl).Methods("POST")
+
 	authAPI.HandleFunc("/rooms/{roomId}/posts", postHandler.CreatePost).Methods("POST")
 	authAPI.HandleFunc("/rooms/{roomId}/posts", postHandler.GetPosts).Methods("GET")
 	authAPI.HandleFunc("/rooms/{roomId}/posts/{postId}", postHandler.DeletePost).Methods("DELETE")

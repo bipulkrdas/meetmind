@@ -8,7 +8,7 @@ export default function VideoConference() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const roomId = params.roomName as string;
+  const roomId = params.roomId as string;
   const [livekitToken, setLivekitToken] = useState('');
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function VideoConference() {
       connect={true}
       video={true}
       audio={true}
-      onDisconnected={() => router.push('/app/home')}
+      onDisconnected={() => router.push(`/app/room/${roomId}`)}
       data-lk-theme="default"
     >
       <LiveKitVideoConference />

@@ -25,4 +25,12 @@ export const participantService = {
   async joinRoomInternal(roomId: string): Promise<{ livekit_token: string }> {
     return apiClient.post(`/app/rooms/${roomId}/join_internal`, {});
   },
+
+  async inviteParticipantsToJoinMeeting(roomId: string): Promise<void> {
+    await apiClient.post(`/app/rooms/${roomId}/invite_participants_to_join_meeting`, {});
+  },
+
+  async generateMeetingUrl(roomId: string): Promise<{ meeting_url: string }> {
+    return apiClient.post(`/app/rooms/${roomId}/generate_meeting_url`, {});
+  },
 };
