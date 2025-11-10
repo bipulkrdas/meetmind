@@ -15,7 +15,7 @@ export default function MessageItem({ message }: MessageItemProps) {
       {/* Avatar */}
       <div className="flex-shrink-0">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-          {message.username.charAt(0).toUpperCase()}
+          {message.message_type === "meeting_transcript"? "A" : message.username.charAt(0).toUpperCase()}
         </div>
       </div>
 
@@ -23,7 +23,7 @@ export default function MessageItem({ message }: MessageItemProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <span className="font-semibold text-gray-900 dark:text-gray-100">
-            {message.username}
+            {message.message_type === "meeting_transcript" ? "AI Agent" : message.username}
           </span>
           <span className="text-xs text-gray-500 dark:text-gray-400">
             {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}

@@ -29,7 +29,7 @@ func (h *TranscriptHandler) GetTranscript(w http.ResponseWriter, r *http.Request
 	vars := mux.Vars(r)
 	roomIDStr := vars["roomId"]
 	messageIDStr := vars["messageId"]
-	s3KeyPath := vars["s3KeyPath"] // This will be "s3_keys.json" or similar
+	s3KeyPath := vars["s3KeyPath"]
 
 	roomID, err := uuid.Parse(roomIDStr)
 	if err != nil {
@@ -42,7 +42,7 @@ func (h *TranscriptHandler) GetTranscript(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Fetch the message to verify it's a transcript message and get the actual S3 key
+	// Fetch the message to verify it's a transcript message and belongs to the room.
 	message, err := h.messageRepo.GetByID(r.Context(), messageID)
 	if err != nil {
 		http.Error(w, "Message not found or database error", http.StatusInternalServerError)
@@ -53,24 +53,18 @@ func (h *TranscriptHandler) GetTranscript(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Determine the correct S3 key based on s3KeyPath
-	var actualS3Key string
-	if s3KeyPath == "s3_keys.json" { // Assuming the frontend sends this literal string
-		actualS3Key = message.ExtraData.Transcript.S3Keys.JSON
-	} else if s3KeyPath == "s3_keys.text" { // If we ever want to support text directly
-		actualS3Key = message.ExtraData.Transcript.S3Keys.Text
-	} else {
-		http.Error(w, "Invalid S3 key path requested", http.StatusBadRequest)
-		return
-	}
+	// Validate that the requested s3KeyPath matches one of the keys in the database for that message.
+	// This prevents users from trying to access other S3 files.
+	dbS3KeyJSON := message.ExtraData.Transcript.S3Keys.JSON
+	dbS3KeyText := message.ExtraData.Transcript.S3Keys.Text
 
-	if actualS3Key == "" {
-		http.Error(w, "S3 key not found in message extra data", http.StatusNotFound)
+	if s3KeyPath != dbS3KeyJSON && s3KeyPath != dbS3KeyText {
+		http.Error(w, "Invalid S3 key path for the given message", http.StatusBadRequest)
 		return
 	}
 
 	// Get the transcript file from S3
-	fileReader, err := h.s3TranscriptStorage.GetTranscriptFile(r.Context(), actualS3Key)
+	fileReader, err := h.s3TranscriptStorage.GetTranscriptFile(r.Context(), s3KeyPath)
 	if err != nil {
 		http.Error(w, "Failed to retrieve transcript from storage: "+err.Error(), http.StatusInternalServerError)
 		return

@@ -20,7 +20,7 @@ export default function CreateRoomForm() {
 
     try {
       const newRoom = await roomService.createRoom(formData);
-      router.push(`/app/room/${newRoom.id}`);
+      router.push(`/app/uroom/${newRoom.id}`);
     } catch (err: any) {
       setError(err.message || 'Failed to create room');
     } finally {

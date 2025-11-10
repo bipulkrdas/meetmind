@@ -141,8 +141,7 @@ func main() {
 	authAPI := api.PathPrefix("/app").Subrouter()
 	authAPI.Use(middleware.AuthMiddleware(cfg.JWTSecret, userRepo))
 
-	authAPI.HandleFunc("/rooms/{roomId}/transcript/{messageId}/{s3KeyPath}", transcriptHandler.GetTranscript).Methods("GET")
-
+	authAPI.HandleFunc("/rooms/{roomId}/transcript/{messageId}/{s3KeyPath:.+}", transcriptHandler.GetTranscript).Methods("GET")
 	authAPI.HandleFunc("/rooms", roomHandler.CreateRoom).Methods("POST")
 	authAPI.HandleFunc("/rooms", roomHandler.GetUserRooms).Methods("GET")
 	authAPI.HandleFunc("/rooms/{roomId}", roomHandler.GetRoomDetails).Methods("GET")
@@ -179,4 +178,3 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to start server")
 	}
 }
-
