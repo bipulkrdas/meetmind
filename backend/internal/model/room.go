@@ -44,6 +44,8 @@ type Room struct {
 	Metadata        Metadata  `json:"metadata" db:"metadata"`
 	CreatedAt       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
+	LastMessageSeq  int       `json:"last_message_seq" db:"last_message_seq"`
+	LastMessageAt   *time.Time `json:"last_message_at" db:"last_message_at"`
 	IsActive        bool      `json:"is_active" db:"is_active"`
 }
 

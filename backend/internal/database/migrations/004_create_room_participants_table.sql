@@ -9,6 +9,8 @@ CREATE TABLE room_participants (
     role VARCHAR(50) DEFAULT 'participant', -- owner, moderator, participant
     joined_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_viewed_at TIMESTAMP,
+    last_read_seq_no INTEGER DEFAULT 0, 
     is_active BOOLEAN DEFAULT true,
     UNIQUE(room_id, email)
 );

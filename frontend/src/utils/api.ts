@@ -56,8 +56,24 @@ class APIClient {
     return response.json();
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' });
+  async get<T>(endpoint: string, options?: { params?: Record<string, any> }): Promise<T> {
+    let url = endpoint;
+    if (options?.params) {
+      const params = new URLSearchParams();
+      for (const key in options.params) {
+        if (Object.prototype.hasOwnProperty.call(options.params, key)) {
+          const value = options.params[key];
+          if (value !== undefined && value !== null) {
+            params.append(key, String(value));
+          }
+        }
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+    return this.request<T>(url, { method: 'GET' });
   }
 
   async post<T>(endpoint: string, data: any): Promise<T> {

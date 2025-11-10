@@ -13,7 +13,7 @@ export default function RoomCard({ room }: RoomCardProps) {
   return (
     <div 
       className="p-4 bg-white rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-      onClick={() => router.push(`/app/room/${room.id}`)}
+      onClick={() => router.push(`/app/uroom/${room.id}`)}
     >
       <h3 className="text-lg font-bold">{room.room_name}</h3>
       <p className="text-gray-600">{room.description}</p>

@@ -8,7 +8,7 @@ import (
 )
 
 func NewPostgresConnection(cfg *config.Config) (*sqlx.DB, error) {
-	db, err := sqlx.Connect("postgres", cfg.DatabaseURL)
+	db, err := sqlx.Connect("postgres", cfg.DatabaseURL+"?prepare_threshold=0&binary_parameters=no")
 	if err != nil {
 		return nil, err
 	}

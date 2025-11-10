@@ -8,6 +8,8 @@ CREATE TABLE rooms (
     metadata JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_message_seq INTEGER DEFAULT 0,
+    last_message_at TIMESTAMP, 
     is_active BOOLEAN DEFAULT true
 );
 

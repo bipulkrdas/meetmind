@@ -28,6 +28,19 @@ type Config struct {
 	CORSAllowedOrigins string `env:"CORS_ALLOWED_ORIGINS,required"`
 	FromEmail          string `env:"FROM_EMAIL"`
 	FromName           string `env:"FROM_NAME"`
+
+	StorageProvider  string `env:"STORAGE_PROVIDER" envDefault:"minio"`
+	StorageEndpoint  string `env:"STORAGE_ENDPOINT"`
+	StorageAccessKey string `env:"STORAGE_ACCESS_KEY"`
+	StorageSecretKey string `env:"STORAGE_SECRET_KEY"`
+	StorageBucket    string `env:"STORAGE_BUCKET"`
+	StorageRegion    string `env:"STORAGE_REGION"`
+	StorageGCSServiceAccountEmail string `env:"STORAGE_GCS_SERVICE_ACCOUNT_EMAIL"`
+
+	TranscriptAWSAccessKeyID     string `env:"TRANSCRIPT_AWS_ACCESS_KEY_ID"`
+	TranscriptAWSSecretAccessKey string `env:"TRANSCRIPT_AWS_SECRET_ACCESS_KEY"`
+	TranscriptAWSRegion          string `env:"TRANSCRIPT_AWS_REGION"`
+	TranscriptAWSBucket          string `env:"TRANSCRIPT_AWS_BUCKET"`
 }
 
 func Load() *Config {

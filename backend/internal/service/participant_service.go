@@ -43,7 +43,7 @@ func (s *ParticipantService) AddParticipant(
 	roomID uuid.UUID,
 	inviterID uuid.UUID,
 	req *model.AddParticipantRequest,
-) (*model.ParticipantInviteResponse, error) {
+) (*model.RoomParticipant, error) {
 	room, err := s.roomRepo.GetByID(ctx, roomID)
 	if err != nil {
 		return nil, err
@@ -59,6 +59,7 @@ func (s *ParticipantService) AddParticipant(
 
 	participantID := uuid.New()
 	participant := &model.RoomParticipant{
+		ID:            participantID,
 		ParticipantID: &participantID,
 		RoomID:        roomID,
 		Email:         req.Email,
@@ -85,11 +86,7 @@ func (s *ParticipantService) AddParticipant(
 		// Log error but don't fail
 	}
 
-	return &model.ParticipantInviteResponse{
-		ParticipantID: participantID,
-		InviteToken:   inviteToken,
-		InviteURL:     inviteURL,
-	}, nil
+	return participant, nil
 }
 
 func (s *ParticipantService) InviteParticipantsToJoinMeeting(ctx context.Context, roomID uuid.UUID, inviterID uuid.UUID) error {

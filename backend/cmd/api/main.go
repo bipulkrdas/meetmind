@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +33,8 @@ func main() {
 	postRepo := repository.NewPostRepository(db)
 	resetTokenRepo := repository.NewPasswordResetTokenRepository(db)
 	inviteRepo := repository.NewInviteRepository(db)
+	messageRepo := repository.NewMessageRepository(db)
+	attachmentRepo := repository.NewAttachmentRepository(db)
 
 	var emailProvider email.EmailProvider
 	if cfg.EmailProvider == "sendgrid" {
@@ -87,10 +90,36 @@ func main() {
 
 	postService := service.NewPostService(postRepo, roomRepo)
 
+	var fileStorage service.FileStorage
+	switch cfg.StorageProvider {
+	case "minio":
+		fileStorage, err = service.NewMinioFileStorage(cfg, attachmentRepo)
+	case "s3":
+		fileStorage, err = service.NewS3FileStorage(cfg, attachmentRepo)
+	case "gcs":
+		fileStorage, err = service.NewGCSFileStorage(context.Background(), cfg, attachmentRepo)
+	default:
+		log.Fatal("Unsupported storage provider")
+	}
+	if err != nil {
+		log.Fatal("Failed to create file storage:", err)
+	}
+
+	messageService := service.NewMessageService(messageRepo, participantRepo, attachmentRepo, roomRepo)
+
+	s3TranscriptStorage, err := service.NewS3TranscriptStorage(cfg)
+	if err != nil {
+		log.Fatal("Failed to create S3 transcript storage:", err)
+	}
+
 	authHandler := handler.NewAuthHandler(authService)
 	roomHandler := handler.NewRoomHandler(roomService)
 	participantHandler := handler.NewParticipantHandler(participantService)
 	postHandler := handler.NewPostHandler(postService)
+	messageHandler := handler.NewMessageHandler(messageService)
+	attachmentHandler := handler.NewAttachmentHandler(fileStorage)
+	agentWebhookHandler := handler.NewAgentWebhookHandler(messageService)
+	transcriptHandler := handler.NewTranscriptHandler(messageRepo, s3TranscriptStorage)
 
 	r := mux.NewRouter()
 
@@ -98,6 +127,8 @@ func main() {
 	r.Use(middleware.LoggingMiddleware)
 
 	api := r.PathPrefix("/api").Subrouter()
+
+	api.HandleFunc("/agent-webhook", agentWebhookHandler.HandleWebhook).Methods("POST")
 
 	api.HandleFunc("/auth/signup", authHandler.SignUp).Methods("POST")
 	api.HandleFunc("/auth/signin", authHandler.SignIn).Methods("POST")
@@ -107,6 +138,8 @@ func main() {
 
 	authAPI := api.PathPrefix("/app").Subrouter()
 	authAPI.Use(middleware.AuthMiddleware(cfg.JWTSecret, userRepo))
+
+	authAPI.HandleFunc("/rooms/{roomId}/transcript/{messageId}/{s3KeyPath}", transcriptHandler.GetTranscript).Methods("GET")
 
 	authAPI.HandleFunc("/rooms", roomHandler.CreateRoom).Methods("POST")
 	authAPI.HandleFunc("/rooms", roomHandler.GetUserRooms).Methods("GET")
@@ -126,6 +159,11 @@ func main() {
 	authAPI.HandleFunc("/rooms/{roomId}/posts", postHandler.CreatePost).Methods("POST")
 	authAPI.HandleFunc("/rooms/{roomId}/posts", postHandler.GetPosts).Methods("GET")
 	authAPI.HandleFunc("/rooms/{roomId}/posts/{postId}", postHandler.DeletePost).Methods("DELETE")
+
+	authAPI.HandleFunc("/rooms/{roomId}/messages", messageHandler.CreateMessage).Methods("POST")
+	authAPI.HandleFunc("/rooms/{roomId}/messages", messageHandler.GetMessages).Methods("GET")
+	authAPI.HandleFunc("/rooms/{roomId}/update_last_read_for_user", messageHandler.UpdateLastRead).Methods("POST")
+	authAPI.HandleFunc("/rooms/{roomId}/attachments", attachmentHandler.UploadAttachment).Methods("POST")
 
 	authAPI.HandleFunc("/auth/me", authHandler.Me).Methods("GET")
 

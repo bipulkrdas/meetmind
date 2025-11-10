@@ -394,6 +394,7 @@ type Message struct {
     RoomID      uuid.UUID       `json:"room_id" db:"room_id"`
     UserID      *uuid.UUID      `json:"user_id" db:"user_id"`
     Username    string          `json:"username" db:"username"` // Joined from users table
+    SeqNon int `json:"seq_no" db:"seq_no"`
     Content     string          `json:"content" db:"content"`
     Metadata    *MessageMetadata `json:"metadata,omitempty" db:"metadata"`
     Edited      bool            `json:"edited" db:"edited"`

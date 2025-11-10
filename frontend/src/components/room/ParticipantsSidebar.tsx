@@ -1,34 +1,21 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { participantService } from '@/services/api/participant.service';
 import AddParticipantModal from './AddParticipantModal';
+import { Participant } from '@/types/participant.types';
+import { AddParticipantRequest } from '@/services/api/participant.service';
 
 interface ParticipantsSidebarProps {
   roomId: string;
+  participants: Participant[];
+  isLoading: boolean;
+  onAddParticipant: (participantData: AddParticipantRequest) => Promise<void>;
 }
 
-export default function ParticipantsSidebar({ roomId }: ParticipantsSidebarProps) {
-  const [participants, setParticipants] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ParticipantsSidebar({ roomId, participants, isLoading, onAddParticipant }: ParticipantsSidebarProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
   const [meetingLink, setMeetingLink] = useState('');
-
-  useEffect(() => {
-    loadParticipants();
-  }, [roomId]);
-
-  const loadParticipants = async () => {
-    setLoading(true);
-    try {
-      const data = await participantService.getParticipants(roomId);
-      setParticipants(data);
-    } catch (error) {
-      console.error('Failed to load participants:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleInviteToJoin = async () => {
     try {
@@ -59,7 +46,7 @@ export default function ParticipantsSidebar({ roomId }: ParticipantsSidebarProps
   return (
     <aside className="w-80 p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-lg font-bold mb-4">Participants ({participants.length})</h2>
-      {loading ? (
+      {isLoading ? (
         <div>Loading...</div>
       ) : (
         <ul>
@@ -93,8 +80,7 @@ export default function ParticipantsSidebar({ roomId }: ParticipantsSidebarProps
       <AddParticipantModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        roomId={roomId}
-        onParticipantAdded={loadParticipants}
+        onParticipantAdded={onAddParticipant}
       />
 
       <Transition appear show={isLinkModalOpen} as={Fragment}>

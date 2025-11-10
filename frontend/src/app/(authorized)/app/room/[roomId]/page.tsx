@@ -69,7 +69,7 @@ export default function RoomPage() {
           <RoomDetails room={room} />
           <PostsList roomId={roomId} />
         </div>
-        <ParticipantsSidebar roomId={roomId} />
+       {/* <ParticipantsSidebar roomId={roomId} /> */}
       </div>
     </div>
   );

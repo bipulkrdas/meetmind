@@ -17,6 +17,7 @@ type ParticipantRepository interface {
 	UserHasAccess(ctx context.Context, roomID, userID uuid.UUID) (bool, error)
 	GetByRoomID(ctx context.Context, roomID uuid.UUID) ([]*model.RoomParticipant, error)
 	Delete(ctx context.Context, participantID uuid.UUID) error
+	UpdateLastRead(ctx context.Context, roomID, userID uuid.UUID, lastReadSeqNo int) error
 }
 
 type participantRepository struct {
@@ -88,3 +89,14 @@ func (r *participantRepository) Delete(ctx context.Context, participantID uuid.U
     _, err := r.db.ExecContext(ctx, query, participantID)
     return err
 }
+
+func (r *participantRepository) UpdateLastRead(ctx context.Context, roomID, userID uuid.UUID, lastReadSeqNo int) error {
+	query := `
+		UPDATE room_participants
+		SET last_read_seq_no = $1, last_viewed_at = NOW()
+		WHERE room_id = $2 AND user_id = $3
+	`
+	_, err := r.db.ExecContext(ctx, query, lastReadSeqNo, roomID, userID)
+	return err
+}
+

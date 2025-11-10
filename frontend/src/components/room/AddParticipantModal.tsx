@@ -1,18 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { participantService } from '@/services/api/participant.service';
 import Modal from '@/components/common/Modal';
+import { AddParticipantRequest } from '@/services/api/participant.service';
 
 interface AddParticipantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  roomId: string;
-  onParticipantAdded: () => void;
+  onParticipantAdded: (participantData: AddParticipantRequest) => Promise<void>;
 }
 
-export default function AddParticipantModal({ isOpen, onClose, roomId, onParticipantAdded }: AddParticipantModalProps) {
-  const [formData, setFormData] = useState({ email: '', name: '' });
+export default function AddParticipantModal({ isOpen, onClose, onParticipantAdded }: AddParticipantModalProps) {
+  const [formData, setFormData] = useState<AddParticipantRequest>({ email: '', name: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,8 +21,7 @@ export default function AddParticipantModal({ isOpen, onClose, roomId, onPartici
     setLoading(true);
 
     try {
-      await participantService.addParticipant(roomId, formData);
-      onParticipantAdded();
+      await onParticipantAdded(formData);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to add participant');

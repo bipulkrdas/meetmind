@@ -44,13 +44,13 @@ func (h *ParticipantHandler) AddParticipant(w http.ResponseWriter, r *http.Reque
         return
     }
 
-    inviteResp, err := h.participantService.AddParticipant(r.Context(), roomID, inviterID, &req)
+    participant, err := h.participantService.AddParticipant(r.Context(), roomID, inviterID, &req)
     if err != nil {
         respondWithError(w, http.StatusInternalServerError, err.Error())
         return
     }
 
-    respondWithJSON(w, http.StatusCreated, inviteResp)
+    respondWithJSON(w, http.StatusCreated, participant)
 }
 
 func (h *ParticipantHandler) GetParticipants(w http.ResponseWriter, r *http.Request) {

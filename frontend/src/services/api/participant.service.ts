@@ -1,4 +1,5 @@
 import { apiClient } from '@/utils/api';
+import { Participant } from '@/types/participant.types';
 
 export interface AddParticipantRequest {
   email: string;
@@ -6,11 +7,11 @@ export interface AddParticipantRequest {
 }
 
 export const participantService = {
-  async addParticipant(roomId: string, data: AddParticipantRequest): Promise<void> {
-    await apiClient.post(`/app/rooms/${roomId}/participants`, data);
+  async addParticipant(roomId: string, data: AddParticipantRequest): Promise<Participant> {
+    return apiClient.post(`/app/rooms/${roomId}/participants`, data);
   },
 
-  async getParticipants(roomId: string): Promise<any[]> {
+  async getParticipants(roomId:string): Promise<Participant[]> {
     return apiClient.get(`/app/rooms/${roomId}/participants`);
   },
 
