@@ -9,6 +9,7 @@ import (
 	"livekit-consulting/backend/internal/repository"
 
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 // AgentWebhookPayload defines the structure for the incoming transcript webhook
@@ -18,10 +19,10 @@ type AgentWebhookPayload struct {
 	SessionStart    string `json:"session_start"`
 	SessionEnd      string `json:"session_end"`
 	TranscriptPaths struct {
-		JSON        string `json:"json"`
-		Text        string `json:"text"`
-		JSONHTTPS   string `json:"json_https_url"`
-		TextHTTPS   string `json:"text_https_url"`
+		JSON      string `json:"json"`
+		Text      string `json:"text"`
+		JSONHTTPS string `json:"json_https_url"`
+		TextHTTPS string `json:"text_https_url"`
 	} `json:"transcript_paths"`
 	S3Keys struct {
 		JSON string `json:"json"`
@@ -101,10 +102,12 @@ func (s *MessageService) CreateTranscriptMessage(ctx context.Context, payload *A
 
 	sessionStart, _ := time.Parse(time.RFC3339, payload.SessionStart)
 	sessionEnd, _ := time.Parse(time.RFC3339, payload.SessionEnd)
+	// TODO (BIPUL): for now setting it to ownder name. In future agent name will be provided
+	systemMessageUserId := room.OwnerID
 
 	message := &model.Message{
 		RoomID:      room.ID,
-		UserID:      nil, // System message
+		UserID:      &systemMessageUserId, // System message
 		Content:     "Meeting transcript is available.",
 		MessageType: model.MessageTypeMeetingTranscript,
 		ExtraData: &model.ExtraData{
@@ -127,6 +130,11 @@ func (s *MessageService) CreateTranscriptMessage(ctx context.Context, payload *A
 
 	_, err = s.messageRepo.Create(ctx, message)
 	if err != nil {
+		log.Error().
+			Err(err).
+			Str("room_id", message.RoomID.String()).
+			Str("message_type", string(message.MessageType)).
+			Msg("Failed to create transcript message in database")
 		return nil, err
 	}
 
@@ -239,5 +247,5 @@ func (s *MessageService) AddReaction(ctx context.Context, messageID, userID uuid
 }
 
 func (s *MessageService) UpdateLastRead(ctx context.Context, roomID, userID uuid.UUID, lastReadSeqNo int) error {
-    return s.participantRepo.UpdateLastRead(ctx, roomID, userID, lastReadSeqNo)
+	return s.participantRepo.UpdateLastRead(ctx, roomID, userID, lastReadSeqNo)
 }

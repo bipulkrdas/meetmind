@@ -17,6 +17,7 @@ require (
 	github.com/livekit/protocol v1.42.3-0.20251022084609-f19569a346e2
 	github.com/livekit/server-sdk-go/v2 v2.12.2
 	github.com/mailjet/mailjet-apiv3-go v0.0.0-20201009050126-c24bc15a9394
+	github.com/rs/zerolog v1.34.0
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
 	golang.org/x/crypto v0.43.0
 )
@@ -93,6 +94,8 @@ require (
 	github.com/livekit/mediatransportutil v0.0.0-20250825135402-7bc31f107ade // indirect
 	github.com/livekit/psrpc v0.7.0 // indirect
 	github.com/magefile/mage v1.15.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/minio/crc64nvme v1.1.0 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.0.97 // indirect

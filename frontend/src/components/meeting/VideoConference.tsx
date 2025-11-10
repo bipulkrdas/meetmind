@@ -17,7 +17,7 @@ export default function VideoConference() {
       setLivekitToken(token);
     } else {
       // Handle case where token is not available
-      router.push(`/app/room/${roomId}/prep`);
+      router.push(`/app/uroom/${roomId}/prep`);
     }
   }, [roomId, router, searchParams]);
 
@@ -28,7 +28,7 @@ export default function VideoConference() {
       connect={true}
       video={true}
       audio={true}
-      onDisconnected={() => router.push(`/app/room/${roomId}`)}
+      onDisconnected={() => router.push(`/app/uroom/${roomId}`)}
       data-lk-theme="default"
     >
       <LiveKitVideoConference />

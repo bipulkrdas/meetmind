@@ -30,7 +30,7 @@ export default function PrepRoom() {
     // In a real app, you might want to save these choices to localStorage
     // so the user's name and device choices are remembered for next time.
     if (liveKitToken) {
-      router.push(`/app/room/${roomId}/meeting?livekit_token=${liveKitToken}`);
+      router.push(`/app/uroom/${roomId}/meeting?livekit_token=${liveKitToken}`);
     } else {
       // Handle case where livekit token is not yet available
       console.error('Livekit token not available');
@@ -38,7 +38,7 @@ export default function PrepRoom() {
   };
 
   const handleCancel = () => {
-    router.push(`/app/room/${roomId}`);
+    router.push(`/app/uroom/${roomId}`);
   };
 
   return (

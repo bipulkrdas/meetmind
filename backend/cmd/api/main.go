@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 
@@ -13,17 +12,20 @@ import (
 	"livekit-consulting/backend/internal/repository"
 	"livekit-consulting/backend/internal/service"
 	"livekit-consulting/backend/internal/service/email"
+	"livekit-consulting/backend/pkg/logger"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
 	cfg := config.Load()
+	logger.Init(cfg.Env)
 
 	db, err := database.NewPostgresConnection(cfg)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal().Err(err).Msg("Failed to connect to database")
 	}
 	defer db.Close()
 
@@ -99,17 +101,17 @@ func main() {
 	case "gcs":
 		fileStorage, err = service.NewGCSFileStorage(context.Background(), cfg, attachmentRepo)
 	default:
-		log.Fatal("Unsupported storage provider")
+		log.Fatal().Msg("Unsupported storage provider")
 	}
 	if err != nil {
-		log.Fatal("Failed to create file storage:", err)
+		log.Fatal().Err(err).Msg("Failed to create file storage")
 	}
 
 	messageService := service.NewMessageService(messageRepo, participantRepo, attachmentRepo, roomRepo)
 
 	s3TranscriptStorage, err := service.NewS3TranscriptStorage(cfg)
 	if err != nil {
-		log.Fatal("Failed to create S3 transcript storage:", err)
+		log.Fatal().Err(err).Msg("Failed to create S3 transcript storage")
 	}
 
 	authHandler := handler.NewAuthHandler(authService)
@@ -172,6 +174,9 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Server starting on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	log.Info().Msgf("Server starting on port %s", port)
+	if err := http.ListenAndServe(":"+port, r); err != nil {
+		log.Fatal().Err(err).Msg("Failed to start server")
+	}
 }
+

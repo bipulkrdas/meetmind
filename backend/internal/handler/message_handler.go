@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 )
 
 type MessageHandler struct {
@@ -84,6 +85,11 @@ func (h *MessageHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	messages, err := h.messageService.GetMessages(r.Context(), roomID, userID, limit, before)
 	if err != nil {
+		log.Error().
+			Err(err).
+			Str("room_id", roomID.String()).
+			Str("user_id", userID.String()).
+			Msg("Failed to get messages")
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

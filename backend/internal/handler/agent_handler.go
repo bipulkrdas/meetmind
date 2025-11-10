@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"livekit-consulting/backend/internal/service"
+
+	"github.com/rs/zerolog/log"
 )
 
 type AgentWebhookHandler struct {
@@ -37,6 +39,11 @@ func (h *AgentWebhookHandler) HandleWebhook(w http.ResponseWriter, r *http.Reque
 
 	_, err := h.messageService.CreateTranscriptMessage(r.Context(), &payload)
 	if err != nil {
+		log.Error().
+			Err(err).
+			Str("room_name", payload.RoomName).
+			Str("event", payload.Event).
+			Msg("Failed to process agent webhook")
 		http.Error(w, "Failed to create transcript message: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
