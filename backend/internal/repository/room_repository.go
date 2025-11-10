@@ -60,7 +60,7 @@ func (r *roomRepository) GetByName(ctx context.Context, name string) (*model.Roo
         SELECT id, room_name, room_sid, description, owner_id, livekit_room_name, 
                metadata, created_at, updated_at, is_active, last_message_seq, last_message_at
         FROM rooms
-        WHERE room_name = $1 AND is_active = true
+        WHERE livekit_room_name = $1 AND is_active = true
     `
 	err := r.db.GetContext(ctx, &room, query, name)
 	if err == sql.ErrNoRows {
