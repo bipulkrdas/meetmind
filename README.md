@@ -43,10 +43,6 @@ If you are interested in licensing this software for commercial or personal use,
 **Email**: bipul.das@dial2ai.com  
 **Website**: https://meetspace.dial2ai.com
 
-## Legal Notice
-
-Unauthorized use of this code may result in legal action. By accessing this repository, you acknowledge and agree to these terms.
-
 ---
 
 **Last Updated**: November 2025
